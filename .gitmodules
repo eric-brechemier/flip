@@ -1,0 +1,3 @@
+[submodule "vendor/lb_js_scalableApp"]
+	path = vendor/lb_js_scalableApp
+	url = https://github.com/legalbox/lb_js_scalableApp.git
