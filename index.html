@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>FLIP</title>
+        <style>
+        /**
+         * Book class
+         *
+         * Display a list of .page like a book
+         */
+        .book {display:inline-block; list-style:none; padding-left:0;padding-right:0; margin-top:0;margin-bottom:0; white-space:nowrap;}
+        .book > .page {display:inline-block; vertical-align:middle; width:29.7em; height:21em; white-space:normal;}
+        
+        .book > .page {margin-left:-29.7em;}
+        .book > .page:first-child,
+        .book > .page.active:not(:last-child) {margin-left:0;}
+        .book > .page:nth-child(2n).active:not(:last-child) {position:relative;left:-29.7em;}
+        
+        /* stacking order*/
+        .book > .page.active,
+        .book > .page.active ~ .page {position:relative;}
+        .book > .page.active:nth-child(1) {z-index:10;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(2) {z-index:9;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(3) {z-index:8;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(4) {z-index:7;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(5) {z-index:6;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(6) {z-index:5;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(7) {z-index:4;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(1) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(2) {z-index:9;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(3) {z-index:8;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(4) {z-index:7;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(5) {z-index:6;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(6) {z-index:5;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(7) {z-index:4;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(2) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(3) {z-index:8;}
+        .book > .page.active:nth-child(3) ~ .page:nth-child(4) {z-index:7;}
+        .book > .page.active:nth-child(3) ~ .page:nth-child(5) {z-index:6;}
+        .book > .page.active:nth-child(3) ~ .page:nth-child(6) {z-index:5;}
+        .book > .page.active:nth-child(3) ~ .page:nth-child(7) {z-index:4;}
+        .book > .page.active:nth-child(3) ~ .page:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(3) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(3) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(4) {z-index:7;}
+        .book > .page.active:nth-child(4) ~ .page:nth-child(5) {z-index:6;}
+        .book > .page.active:nth-child(4) ~ .page:nth-child(6) {z-index:5;}
+        .book > .page.active:nth-child(4) ~ .page:nth-child(7) {z-index:4;}
+        .book > .page.active:nth-child(4) ~ .page:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(4) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(4) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(5) {z-index:6;}
+        .book > .page.active:nth-child(5) ~ .page:nth-child(6) {z-index:5;}
+        .book > .page.active:nth-child(5) ~ .page:nth-child(7) {z-index:4;}
+        .book > .page.active:nth-child(5) ~ .page:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(5) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(5) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(6) {z-index:5;}
+        .book > .page.active:nth-child(6) ~ .page:nth-child(7) {z-index:4;}
+        .book > .page.active:nth-child(6) ~ .page:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(6) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(6) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(7) {z-index:4;}
+        .book > .page.active:nth-child(7) ~ .page:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(7) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(7) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(8) {z-index:3;}
+        .book > .page.active:nth-child(8) ~ .page:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(8) ~ .page:nth-child(10) {z-index:1;}
+        .book > .page.active:nth-child(9) {z-index:2;}
+        .book > .page.active:nth-child(9) ~ .page:nth-child(10) {z-index:1;}
+        
+        html, body {height:100%;}
+        html {display:table; width:100%;}
+        body {display:table-cell; text-align:center; vertical-align:middle;}
+        body {background-color:whiteSmoke;}
+        
+        #album {/*background-color:SteelBlue; padding:1em; -moz-box-shadow:0 0 1em rgba(0,0,0,.5);*/}
+        #album.book > .page {background-color:white; border-radius:.5em;-moz-border-radius:.5em;}
+        #album.book > .page:first-child,
+        #album.book > .page:last-child {box-shadow:0 0 2em rgba(0,0,0,.25);-moz-box-shadow:0 0 2em rgba(0,0,0,.25);}
+        #album.book > .page:not(:first-child):not(:last-child) {background-image:-moz-linear-gradient(left, rgba(0, 0, 0, 0.8) 0.1em, rgba(0, 0, 0, 0.2) 0.01em, transparent .75em);}
+        
+        #album.book > .page.active {background-color:infoBackground;}
+        #album.book > .page:first-child,
+        #album.book > .page:nth-child(2n) {border:1px solid;}
+        #album.book > .page:nth-child(2n):not(:first-child):not(:last-child) {background-image:-moz-linear-gradient(right, rgba(0, 0, 0, 0.8) 0.1em, rgba(0, 0, 0, 0.2) 0.01em, transparent .75em);}
+        
+        button {font-size:200%; position:fixed; top:50%; z-index:999;}
+        button[rel="prev"] {left:0;}
+        button[rel="next"] {right:0;}
+        </style>
+    </head>
+    <body>
+        <h1>Let's FLIP!</h1>
+        <ol id="album" class="book">
+            <li class="page">
+                page 0
+            </li><li class="page">
+            page 1
+            </li><li class="page">
+            page 2
+            </li><li class="page active">
+            page 3
+            </li><li class="page"> 
+            page 4 
+            </li><li class="page"> 
+            page 5
+            </li><li class="page"> 
+            page 6
+            </li><li class="page"> 
+            page 7 
+            </li><li class="page"> 
+            page 8
+            </li><li class="page"> 
+            page 9
+            </li>
+        </ol>
+        <button rel="prev">&lt;</button>
+        <button rel="next">&gt;</button>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+        <script>
+        var book = function (node) {
+            // Private variables
+            var pages = $('li', $(node)),
+                active,
+
+                activate = function (i) {
+                    var activeClass = 'active';
+                    if (i < 0) {
+                        i = 0;
+                    }
+                    if (i >= pages.length) {
+                        i = pages.length - 1;
+                    }
+                    $(pages).removeClass(activeClass);
+                    $(pages[i]).addClass(activeClass);
+                    active = i;
+                };
+
+            // Initialization
+            activate(0);
+
+            // Public API
+            return {
+                prev: function() {
+                    activate(active - 1);
+                },
+                next: function () {
+                    activate(active + 1);
+                }
+            };
+        };
+
+        // Instanciation
+        var myBook = book($('ol')[0]);
+
+        $('button[rel="next"]').click(function(event){
+            myBook.next();
+        });
+        $('button[rel="prev"]').click(function(event){
+            myBook.prev();
+        });
+        </script>
+    </body>
+</html>
