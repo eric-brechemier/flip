@@ -153,20 +153,17 @@
             var that = lb.core.application,
                 module = function (id, creator) {return new lb.core.Module(id, creator);},
                 super_addModule = that.superior('addModule');
-
+            
             //that.setOptions(options);
-
+            
             that.addModule = function (id, creator) {
                 super_addModule(module(id, creator));
             };
-
+            
             return that;
         }());
         flip.addModule('album', function(sandbox) {
-            var getBox = sandbox.getBox,
-                $ = sandbox.dom.$,
-                
-                pages = [
+            var pages = [
                         sandbox.dom.$('page0'),
                         sandbox.dom.$('page1'),
                         sandbox.dom.$('page2'),
@@ -181,14 +178,24 @@
                 activeClass = 'active',
                 active = 3,
                 activate = function (i) {
-                    sandbox.css.removeClass(pages[active], activeClass);
-                    sandbox.css.addClass(pages[i], activeClass);
+                    if (i >= 0 && i < pages.length) {
+                        sandbox.css.removeClass(pages[active], activeClass);
+                        sandbox.css.addClass(pages[i], activeClass);
+                        active = i;
+                    }
                 };
             
             return {
                 start: function () {
-                    sandbox.events.subscribe({topic: 'page', type: 'change'}, function () {
-                        sandbox.utils.log('time to change baby!');
+                    sandbox.events.subscribe({topic: 'page', type: 'change'}, function (event) {
+                        switch (event.direction) {
+                            case 'forward':
+                                activate(active + 1);
+                                break;
+                            case 'backward':
+                                activate(active - 1);
+                                break;
+                        }
                     });
                 },
                 end: function () {
@@ -199,13 +206,15 @@
         flip.addModule('navigation', function (sandbox) {
             return {
                 start: function () {
-                    sandbox.dom.addListener(sandbox.dom.$('nextpage'), 'click', function () {
-                        sandbox.utils.log('clicked forward!');
-                        sandbox.events.publish({topic: 'page', type: 'change'})
+                    sandbox.dom.addListener(sandbox.dom.$('nextpage'), 'click', function (event) {
+                        sandbox.events.publish({topic: 'page', type: 'change', direction: 'forward'});
+                    });
+                    sandbox.dom.addListener(sandbox.dom.$('prevpage'), 'click', function (event) {
+                        sandbox.events.publish({topic: 'page', type: 'change', direction: 'backward'});
                     });
                 },
                 end: function () {
-
+                    
                 }
             };
         });
