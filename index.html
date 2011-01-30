@@ -99,74 +99,117 @@
     <body>
         <h1>Let's FLIP!</h1>
         <ol id="album" class="book">
-            <li class="page">
-                page 0
-            </li><li class="page">
+            <li id="album.page0" class="page">
+            page 0
+            </li><li id="album.page1" class="page">
             page 1
-            </li><li class="page">
+            </li><li id="album.page2" class="page">
             page 2
-            </li><li class="page active">
+            </li><li id="album.page3" class="page active">
             page 3
-            </li><li class="page"> 
-            page 4 
-            </li><li class="page"> 
+            </li><li id="album.page4" class="page">
+            page 4
+            </li><li id="album.page5" class="page">
             page 5
-            </li><li class="page"> 
+            </li><li id="album.page6" class="page">
             page 6
-            </li><li class="page"> 
-            page 7 
-            </li><li class="page"> 
+            </li><li id="album.page7" class="page">
+            page 7
+            </li><li id="album.page8" class="page">
             page 8
-            </li><li class="page"> 
+            </li><li id="album.page9" class="page">
             page 9
             </li>
         </ol>
-        <button rel="prev">&lt;</button>
-        <button rel="next">&gt;</button>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
+        <div id="navigation">
+            <button id="navigation.prevpage" rel="prev">&lt;</button>
+            <button id="navigation.nextpage" rel="next">&gt;</button>
+        </div>
         <script src="vendor/lb_js_scalableApp/build/out/js/lb-full.js"></script>
         <script>
-        var book = function (node) {
-            // Private variables
-            var pages = $('li', $(node)),
-                active,
-
-                activate = function (i) {
-                    var activeClass = 'active';
-                    if (i < 0) {
-                        i = 0;
-                    }
-                    if (i >= pages.length) {
-                        i = pages.length - 1;
-                    }
-                    $(pages).removeClass(activeClass);
-                    $(pages[i]).addClass(activeClass);
-                    active = i;
-                };
-
-            // Initialization
-            activate(0);
-
-            // Public API
-            return {
-                prev: function() {
-                    activate(active - 1);
-                },
-                next: function () {
-                    activate(active + 1);
-                }
+        if (typeof Object.create !== 'function') {
+            Object.create = function (o) {
+                var F = function () {};
+                F.prototype = o;
+                return new F();
             };
         };
-
-        // Instanciation
-        var myBook = book($('ol')[0]);
-
-        $('button[rel="next"]').click(function(event){
-            myBook.next();
+        Function.prototype.method = function (name, func) {
+            if (!this.prototype[name]) {
+                this.prototype[name] = func;
+                return this;
+            }
+        };
+        Object.method('superior', function (name) {
+            var that = this,
+                method = that[name];
+            return function () {
+                return method.apply(that, arguments);
+            };
         });
-        $('button[rel="prev"]').click(function(event){
-            myBook.prev();
+        
+        
+        var flip = flip || (function (options) {
+            var that = lb.core.application,
+                module = function (id, creator) {return new lb.core.Module(id, creator);},
+                super_addModule = that.superior('addModule');
+
+            //that.setOptions(options);
+
+            that.addModule = function (id, creator) {
+                super_addModule(module(id, creator));
+            };
+
+            return that;
+        }());
+        flip.addModule('album', function(sandbox) {
+            var getBox = sandbox.getBox,
+                $ = sandbox.dom.$,
+                
+                pages = [
+                        sandbox.dom.$('page0'),
+                        sandbox.dom.$('page1'),
+                        sandbox.dom.$('page2'),
+                        sandbox.dom.$('page3'),
+                        sandbox.dom.$('page4'),
+                        sandbox.dom.$('page5'),
+                        sandbox.dom.$('page6'),
+                        sandbox.dom.$('page7'),
+                        sandbox.dom.$('page8'),
+                        sandbox.dom.$('page9')
+                ],
+                activeClass = 'active',
+                active = 3,
+                activate = function (i) {
+                    sandbox.css.removeClass(pages[active], activeClass);
+                    sandbox.css.addClass(pages[i], activeClass);
+                };
+            
+            return {
+                start: function () {
+                    sandbox.events.subscribe({topic: 'page', type: 'change'}, function () {
+                        sandbox.utils.log('time to change baby!');
+                    });
+                },
+                end: function () {
+                    
+                }
+            };
         });
+        flip.addModule('navigation', function (sandbox) {
+            return {
+                start: function () {
+                    sandbox.dom.addListener(sandbox.dom.$('nextpage'), 'click', function () {
+                        sandbox.utils.log('clicked forward!');
+                        sandbox.events.publish({topic: 'page', type: 'change'})
+                    });
+                },
+                end: function () {
+
+                }
+            };
+        });
+        flip.run();
         </script>
     </body>
 </html>
