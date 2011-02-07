@@ -3,6 +3,12 @@
     <head>
         <meta charset="utf-8">
         <title>FLIP</title>
+        <!--
+        I see an advantage in having all CSS / JavaScript / HTML in the
+        same file, but as a starting point, I would rather advize to put
+        CSS and JavaScript in external files: it is a best practice, and
+        a requirement for maintenance in an entreprise-class webapp
+        -->
         <style>
         /**
          * Book class
@@ -80,6 +86,12 @@
         body {display:table-cell; text-align:center; vertical-align:middle;}
         body {background-color:whiteSmoke;}
         
+        /*
+         I would avoid use of #identifier in CSS rules, which limits reuse.
+         See OOCSS for reference.
+         Why not use .book class alone?
+         Or define a new class flipbook for additional properties?
+         */
         #album {/*background-color:SteelBlue; padding:1em; -moz-box-shadow:0 0 1em rgba(0,0,0,.5);*/}
         #album.book > .page {background-color:white; border-radius:.5em;-moz-border-radius:.5em;}
         #album.book > .page:first-child,
@@ -98,6 +110,12 @@
     </head>
     <body>
         <h1>Let's FLIP!</h1>
+        <!--
+        Do you have any idea of contents to display in the Flip book?
+        If not, you may use Chrome Comic by Scott McCloud, which is licensed
+        under a CC-BY-NC-SA license:
+        http://www.google.com/googlebooks/chrome/
+        -->
         <ol id="album" class="book">
             <li id="album.page0" class="page">
             page 0
@@ -126,7 +144,13 @@
             <button id="navigation.nextpage" rel="next">&gt;</button>
         </div>
         <script src="vendor/lb_js_scalableApp/build/out/js/lb-full.js"></script>
+        <!-- Same remark as for CSS: it would probably be better to move
+        internal scripts to one or several files, e.g. main.js and one file
+        per module -->
         <script>
+        // extending Object is frowned upon... is it really needed?
+        // (I thought about adding this method to lb.base.oject at some point,
+        // but didn't do it in the end because I did not use it anywhere)
         if (typeof Object.create !== 'function') {
             Object.create = function (o) {
                 var F = function () {};
@@ -134,12 +158,15 @@
                 return new F();
             };
         };
+        // same here... there is a risk of conflict with libraries such as
+        // ExtJS that still extend the prototype of native JavaScript objects.
         Function.prototype.method = function (name, func) {
             if (!this.prototype[name]) {
                 this.prototype[name] = func;
                 return this;
             }
         };
+        // Same here...
         Object.method('superior', function (name) {
             var that = this,
                 method = that[name];
@@ -149,7 +176,15 @@
         });
         
         
+        // options is undefined and never used
         var flip = flip || (function (options) {
+            // I do not fully understand the intent of this section...
+            // Are you trying to have flip "extend" lb.core.application?
+            // In my vision, there was only a single app, lb.core.application.
+            // Which you may rename to flip as var flip = lb.core.application,
+            // as you suggested beautifully. I would not expect developers to
+            // recreate all this complex structure to create a new app.
+
             var that = lb.core.application,
                 module = function (id, creator) {return new lb.core.Module(id, creator);},
                 super_addModule = that.superior('addModule');
@@ -162,7 +197,17 @@
             
             return that;
         }());
+        // or rather: define in an external file:
+        // lb.ui.album = function(sanbox){ ... };
+        //
+        // define alias to Module:
+        // var Module = lb.core.Module;
+        // and call here:
+        // flip.addModule( new Module('album', lb.ui.album) );
         flip.addModule('album', function(sandbox) {
+            // use a loop instead, with a fixed length (if number of pages
+            // is fixed) or until $('page'+i) returns null.
+            // (to enhance maintainability)
             var pages = [
                         sandbox.dom.$('page0'),
                         sandbox.dom.$('page1'),
@@ -198,14 +243,35 @@
                         }
                     });
                 },
+                // end is optional, no need to include an empty function
                 end: function () {
                     
                 }
             };
         });
         flip.addModule('navigation', function (sandbox) {
+            // define aliases to enhance readability:
+            // var addListener = sandbox.dom.addListener,
+            //     $ = sandbox.dom.$,
+            //     publish = sandbox.events.publish;
+            // (A...)
+
+            // Current code is hard to test: anonymous functions cannot be
+            // tested separately. For this purpose, I would suggest to extract
+            // anonymous functions, e.g.:
+            //   - function onNextPageClick(){ ... }
+            //   - function onPreviousPageClick(){ ... }
+            // (B...)
+
             return {
+                // (B...) then add them to public API, accessible in unit
+                // tests:
+                // onNextPageClick: onNextPageClick,
+                // onPreviousPageClick: onPreviousPageClick,
+
                 start: function () {
+                    // (A...) then use shorter form:
+                    // addListener( $('nextpage'), 'click', function(event){ ... }
                     sandbox.dom.addListener(sandbox.dom.$('nextpage'), 'click', function (event) {
                         sandbox.events.publish({topic: 'page', type: 'change', direction: 'forward'});
                     });
@@ -213,6 +279,7 @@
                         sandbox.events.publish({topic: 'page', type: 'change', direction: 'backward'});
                     });
                 },
+                // same here: empty end can be omitted
                 end: function () {
                     
                 }
